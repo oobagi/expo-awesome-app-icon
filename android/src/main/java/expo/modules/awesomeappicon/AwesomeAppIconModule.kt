@@ -71,7 +71,7 @@ class AwesomeAppIconModule : Module() {
 
   private fun defaultAlias(): String {
     return metaDataValue(DEFAULT_ALIAS_META_DATA)
-      ?: throw AwesomeAppIconException("Default launcher alias is not configured. Add the react-native-awesome-app-icon config plugin and rebuild the app.")
+      ?: throw AwesomeAppIconException("Default launcher alias is not configured. Add the expo-awesome-app-icon config plugin and rebuild the app.")
   }
 
   private fun aliasComponent(aliasName: String): ComponentName {

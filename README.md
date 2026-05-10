@@ -1,4 +1,4 @@
-# react-native-awesome-app-icon
+# expo-awesome-app-icon
 
 Dynamically switch between bundled app icons in Expo apps.
 
@@ -9,7 +9,7 @@ config plugin, then selected at runtime from JavaScript.
 ## Install
 
 ```sh
-npx expo install react-native-awesome-app-icon
+npx expo install expo-awesome-app-icon
 ```
 
 This package contains native code and does not work in Expo Go. Use a
@@ -23,7 +23,7 @@ Accepted icon config fields:
 
 ```js
 [
-  'react-native-awesome-app-icon',
+  'expo-awesome-app-icon',
   {
     icons: {
       iconName: './assets/icons/icon.png', // shorthand: use the same image on iOS and Android
@@ -49,7 +49,7 @@ Accepted icon config fields:
   "expo": {
     "plugins": [
       [
-        "react-native-awesome-app-icon",
+        "expo-awesome-app-icon",
         {
           "icons": {
             "ocean": {
@@ -96,7 +96,7 @@ import {
   getAvailableIcons,
   setAppIcon,
   supportsAlternateIcons,
-} from 'react-native-awesome-app-icon';
+} from 'expo-awesome-app-icon';
 
 if (supportsAlternateIcons()) {
   await setAppIcon('sunset');

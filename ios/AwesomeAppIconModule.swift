@@ -9,7 +9,7 @@ private final class AlternateIconsUnavailableException: Exception, @unchecked Se
 
 private final class UnknownIconException: GenericException<String>, @unchecked Sendable {
   override var reason: String {
-    "Unknown app icon '\(param)'. Make sure it is declared in the react-native-awesome-app-icon config plugin."
+    "Unknown app icon '\(param)'. Make sure it is declared in the expo-awesome-app-icon config plugin."
   }
 }
 

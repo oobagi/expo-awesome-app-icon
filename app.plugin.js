@@ -36,11 +36,11 @@ const withAwesomeAppIcon = (config, props = {}) => {
 
   if (records.length === 0) {
     WarningAggregator.addWarningAndroid(
-      'react-native-awesome-app-icon',
+      'expo-awesome-app-icon',
       'No alternate app icons were configured.'
     );
     WarningAggregator.addWarningIOS(
-      'react-native-awesome-app-icon',
+      'expo-awesome-app-icon',
       'No alternate app icons were configured.'
     );
     return config;

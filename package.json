@@ -1,6 +1,6 @@
 {
-  "name": "react-native-awesome-app-icon",
-  "version": "0.1.0",
+  "name": "expo-awesome-app-icon",
+  "version": "1.0.0",
   "description": "Dynamically switch bundled app icons in Expo apps",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -25,21 +25,21 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/oobagi/react-native-awesome-app-icon.git"
+    "url": "git+https://github.com/oobagi/expo-awesome-app-icon.git"
   },
   "bugs": {
-    "url": "https://github.com/oobagi/react-native-awesome-app-icon/issues"
+    "url": "https://github.com/oobagi/expo-awesome-app-icon/issues"
   },
   "author": "igaboo <jadenwatsond@gmail.com> (https://github.com/oobagi)",
   "license": "MIT",
-  "homepage": "https://github.com/oobagi/react-native-awesome-app-icon#readme",
+  "homepage": "https://github.com/oobagi/expo-awesome-app-icon#readme",
   "dependencies": {
     "@expo/image-utils": "^0.8.14"
   },
   "devDependencies": {
     "@types/react": "~19.1.1",
-    "expo-module-scripts": "^55.0.2",
     "expo": "^55.0.20",
+    "expo-module-scripts": "^55.0.2",
     "react-native": "0.82.1"
   },
   "peerDependencies": {

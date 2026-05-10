@@ -1,4 +1,4 @@
-import AwesomeAppIcon from 'react-native-awesome-app-icon';
+import AwesomeAppIcon from 'expo-awesome-app-icon';
 import { Button, SafeAreaView, ScrollView, Text, View } from 'react-native';
 
 export default function App() {

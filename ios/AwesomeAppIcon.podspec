@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.homepage       = package['homepage']
   s.platform       = :ios, '15.1'
   s.swift_version  = '5.9'
-  s.source         = { git: 'https://github.com/oobagi/react-native-awesome-app-icon' }
+  s.source         = { git: 'https://github.com/oobagi/expo-awesome-app-icon' }
   s.static_framework = true
 
   s.dependency 'ExpoModulesCore'

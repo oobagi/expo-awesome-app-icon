@@ -22,7 +22,7 @@ After the package exists on npm, configure trusted publishing for this repo:
 
 - Publisher: GitHub Actions
 - Organization or user: `oobagi`
-- Repository: `react-native-awesome-app-icon`
+- Repository: `expo-awesome-app-icon`
 - Workflow filename: `publish.yml`
 
 Trusted publishing lets GitHub Actions publish through OIDC without storing an
