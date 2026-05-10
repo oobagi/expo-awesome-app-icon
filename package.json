@@ -4,6 +4,18 @@
   "description": "Dynamically switch bundled app icons in Expo apps",
   "main": "build/index.js",
   "types": "build/index.d.ts",
+  "files": [
+    "android/build.gradle",
+    "android/src",
+    "app.plugin.js",
+    "build",
+    "CHANGELOG.md",
+    "expo-module.config.json",
+    "ios",
+    "LICENSE",
+    "README.md",
+    "src"
+  ],
   "scripts": {
     "build": "expo-module build",
     "clean": "expo-module clean",

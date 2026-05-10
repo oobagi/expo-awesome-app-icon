@@ -2,13 +2,9 @@
 
 This package publishes to the public npm registry.
 
-## First publish
-
-The package does not exist on npm until the first publish. Create or sign in to
-an npm account, then publish the first version from a clean local checkout:
+## Manual publish
 
 ```sh
-npm login
 npm ci
 npm run lint
 npm test
@@ -18,7 +14,7 @@ npm publish --access public
 
 ## Trusted publishing
 
-After the package exists on npm, configure trusted publishing for this repo:
+Configure trusted publishing for this repo:
 
 - Publisher: GitHub Actions
 - Organization or user: `oobagi`
@@ -34,4 +30,4 @@ git push origin main --follow-tags
 ```
 
 The `Publish Package` workflow runs on `v*` tags and publishes the tagged
-package version to npm.
+package version to npm when that version is not already published.
