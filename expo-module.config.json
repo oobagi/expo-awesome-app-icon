@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["AwesomeAppIconModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.awesomeappicon.AwesomeAppIconModule"]
+  }
+}
