@@ -1,12 +1,15 @@
 import { NativeModule, requireNativeModule } from 'expo';
 
-import { AwesomeAppIconModuleEvents } from './AwesomeAppIcon.types';
+import type { AppIconName } from './AwesomeAppIcon.types';
 
-declare class AwesomeAppIconModule extends NativeModule<AwesomeAppIconModuleEvents> {
-  PI: number;
-  hello(): string;
-  setValueAsync(value: string): Promise<void>;
+declare class AwesomeAppIconModule extends NativeModule {
+  supportsAlternateIcons(): boolean;
+  getAvailableIcons(): AppIconName[];
+  getAppIcon(): AppIconName | null;
+  setAppIconAsync(iconName: AppIconName | null): Promise<void>;
 }
 
 // This call loads the native module object from the JSI.
-export default requireNativeModule<AwesomeAppIconModule>('AwesomeAppIcon');
+const nativeModule = requireNativeModule<AwesomeAppIconModule>('AwesomeAppIcon');
+
+export default nativeModule;

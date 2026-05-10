@@ -1,36 +1,32 @@
-import { useEvent } from 'expo';
-import AwesomeAppIcon, { AwesomeAppIconView } from 'my-module';
+import AwesomeAppIcon from 'react-native-awesome-app-icon';
 import { Button, SafeAreaView, ScrollView, Text, View } from 'react-native';
 
 export default function App() {
-  const onChangePayload = useEvent(AwesomeAppIcon, 'onChange');
+  const availableIcons = AwesomeAppIcon.getAvailableIcons();
+  const currentIcon = AwesomeAppIcon.getAppIcon();
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
-        <Text style={styles.header}>Module API Example</Text>
-        <Group name="Constants">
-          <Text>{AwesomeAppIcon.PI}</Text>
+        <Text style={styles.header}>Dynamic App Icon Example</Text>
+        <Group name="Support">
+          <Text>{AwesomeAppIcon.supportsAlternateIcons() ? 'Supported' : 'Not supported'}</Text>
         </Group>
-        <Group name="Functions">
-          <Text>{AwesomeAppIcon.hello()}</Text>
+        <Group name="Current icon">
+          <Text>{currentIcon ?? 'Primary'}</Text>
         </Group>
-        <Group name="Async functions">
+        <Group name="Configured icons">
+          <Text>{availableIcons.length > 0 ? availableIcons.join(', ') : 'None'}</Text>
+        </Group>
+        {availableIcons.map((iconName) => (
+          <Group key={iconName} name={iconName}>
+            <Button title={`Use ${iconName}`} onPress={() => AwesomeAppIcon.setAppIcon(iconName)} />
+          </Group>
+        ))}
+        <Group name="Primary">
           <Button
-            title="Set value"
-            onPress={async () => {
-              await AwesomeAppIcon.setValueAsync('Hello from JS!');
-            }}
-          />
-        </Group>
-        <Group name="Events">
-          <Text>{onChangePayload?.value}</Text>
-        </Group>
-        <Group name="Views">
-          <AwesomeAppIconView
-            url="https://www.example.com"
-            onLoad={({ nativeEvent: { url } }) => console.log(`Loaded: ${url}`)}
-            style={styles.view}
+            title="Reset to primary icon"
+            onPress={() => AwesomeAppIcon.setAppIcon(null)}
           />
         </Group>
       </ScrollView>
@@ -65,9 +61,5 @@ const styles = {
   container: {
     flex: 1,
     backgroundColor: '#eee',
-  },
-  view: {
-    flex: 1,
-    height: 200,
   },
 };

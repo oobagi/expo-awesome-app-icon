@@ -1,5 +1,27 @@
-// Reexport the native module. On web, it will be resolved to AwesomeAppIconModule.web.ts
-// and on native platforms to AwesomeAppIconModule.ts
-export { default } from './AwesomeAppIconModule';
-export { default as AwesomeAppIconView } from './AwesomeAppIconView';
-export * from  './AwesomeAppIcon.types';
+import AwesomeAppIconModule from './AwesomeAppIconModule';
+import type { AppIconName } from './AwesomeAppIcon.types';
+
+export function supportsAlternateIcons(): boolean {
+  return AwesomeAppIconModule.supportsAlternateIcons();
+}
+
+export function getAvailableIcons(): AppIconName[] {
+  return AwesomeAppIconModule.getAvailableIcons();
+}
+
+export function getAppIcon(): AppIconName | null {
+  return AwesomeAppIconModule.getAppIcon();
+}
+
+export async function setAppIcon(iconName: AppIconName | null): Promise<void> {
+  await AwesomeAppIconModule.setAppIconAsync(iconName);
+}
+
+export default {
+  supportsAlternateIcons,
+  getAvailableIcons,
+  getAppIcon,
+  setAppIcon,
+};
+
+export * from './AwesomeAppIcon.types';

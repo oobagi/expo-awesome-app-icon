@@ -1,19 +1,30 @@
-import type { StyleProp, ViewStyle } from 'react-native';
+export type AppIconName = string;
 
-export type OnLoadEventPayload = {
-  url: string;
+export type AndroidIconConfig = {
+  /**
+   * Full square fallback launcher icon. Used for pre-adaptive Android launchers
+   * and as the fallback when adaptive icon layers are not provided.
+   */
+  image?: string;
+  legacyImage?: string;
+  foregroundImage?: string;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  monochromeImage?: string;
 };
 
-export type AwesomeAppIconModuleEvents = {
-  onChange: (params: ChangeEventPayload) => void;
+export type IosIconConfig = {
+  image?: string;
 };
 
-export type ChangeEventPayload = {
-  value: string;
-};
-
-export type AwesomeAppIconViewProps = {
-  url: string;
-  onLoad: (event: { nativeEvent: OnLoadEventPayload }) => void;
-  style?: StyleProp<ViewStyle>;
+export type DynamicAppIconConfig = {
+  icons: Record<
+    string,
+    | string
+    | {
+        image?: string;
+        ios?: IosIconConfig | string;
+        android?: AndroidIconConfig | string;
+      }
+  >;
 };

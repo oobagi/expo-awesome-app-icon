@@ -10,12 +10,9 @@ Pod::Spec.new do |s|
   s.license        = package['license']
   s.author         = package['author']
   s.homepage       = package['homepage']
-  s.platforms      = {
-    :ios => '15.1',
-    :tvos => '15.1'
-  }
+  s.platform       = :ios, '15.1'
   s.swift_version  = '5.9'
-  s.source         = { git: 'https://github.com/oobagi/my-module' }
+  s.source         = { git: 'https://github.com/oobagi/react-native-awesome-app-icon' }
   s.static_framework = true
 
   s.dependency 'ExpoModulesCore'

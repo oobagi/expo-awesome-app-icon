@@ -1,48 +1,89 @@
 import ExpoModulesCore
+import UIKit
+
+private final class AlternateIconsUnavailableException: Exception, @unchecked Sendable {
+  override var reason: String {
+    "Alternate app icons are not available for this app."
+  }
+}
+
+private final class UnknownIconException: GenericException<String>, @unchecked Sendable {
+  override var reason: String {
+    "Unknown app icon '\(param)'. Make sure it is declared in the react-native-awesome-app-icon config plugin."
+  }
+}
 
 public class AwesomeAppIconModule: Module {
-  // Each module class must implement the definition function. The definition consists of components
-  // that describes the module's functionality and behavior.
-  // See https://docs.expo.dev/modules/module-api for more details about available components.
   public func definition() -> ModuleDefinition {
-    // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
-    // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('AwesomeAppIcon')` in JavaScript.
     Name("AwesomeAppIcon")
 
-    // Defines constant property on the module.
-    Constant("PI") {
-      Double.pi
+    Function("supportsAlternateIcons") {
+#if os(iOS) || os(tvOS)
+      return UIApplication.shared.supportsAlternateIcons
+#else
+      return false
+#endif
     }
 
-    // Defines event names that the module can send to JavaScript.
-    Events("onChange")
-
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      return "Hello world! 👋"
+    Function("getAvailableIcons") {
+      return self.availableIconNames()
     }
 
-    // Defines a JavaScript function that always returns a Promise and whose native code
-    // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { (value: String) in
-      // Send an event to JavaScript.
-      self.sendEvent("onChange", [
-        "value": value
-      ])
+    Function("getAppIcon") {
+#if os(iOS) || os(tvOS)
+      guard let nativeName = UIApplication.shared.alternateIconName else {
+        return nil as String?
+      }
+      return self.iconName(forNativeName: nativeName)
+#else
+      return nil as String?
+#endif
     }
 
-    // Enables the module to be used as a native view. Definition components that are accepted as part of the
-    // view definition: Prop, Events.
-    View(AwesomeAppIconView.self) {
-      // Defines a setter for the `url` prop.
-      Prop("url") { (view: AwesomeAppIconView, url: URL) in
-        if view.webView.url != url {
-          view.webView.load(URLRequest(url: url))
-        }
+    AsyncFunction("setAppIconAsync") { (iconName: String?, promise: Promise) in
+#if os(iOS) || os(tvOS)
+      guard UIApplication.shared.supportsAlternateIcons else {
+        promise.reject(AlternateIconsUnavailableException())
+        return
       }
 
-      Events("onLoad")
-    }
+      let nativeName: String?
+      if let iconName {
+        guard let mappedName = self.nativeIconName(forIconName: iconName) else {
+          promise.reject(UnknownIconException(iconName))
+          return
+        }
+        nativeName = mappedName
+      } else {
+        nativeName = nil
+      }
+
+      UIApplication.shared.setAlternateIconName(nativeName) { error in
+        if let error {
+          promise.reject(error)
+          return
+        }
+        promise.resolve(nil)
+      }
+#else
+      promise.reject(AlternateIconsUnavailableException())
+#endif
+    }.runOnQueue(.main)
+  }
+
+  private func availableIconNames() -> [String] {
+    return Bundle.main.object(forInfoDictionaryKey: "AwesomeAppIconIconNames") as? [String] ?? []
+  }
+
+  private func iconMap() -> [String: String] {
+    return Bundle.main.object(forInfoDictionaryKey: "AwesomeAppIconIconMap") as? [String: String] ?? [:]
+  }
+
+  private func nativeIconName(forIconName iconName: String) -> String? {
+    return iconMap()[iconName]
+  }
+
+  private func iconName(forNativeName nativeName: String) -> String? {
+    return iconMap().first { $0.value == nativeName }?.key
   }
 }
