@@ -23,7 +23,10 @@
     "launcher-icon",
     "AwesomeAppIcon"
   ],
-  "repository": "https://github.com/oobagi/react-native-awesome-app-icon",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oobagi/react-native-awesome-app-icon.git"
+  },
   "bugs": {
     "url": "https://github.com/oobagi/react-native-awesome-app-icon/issues"
   },
