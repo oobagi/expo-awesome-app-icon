@@ -6,20 +6,20 @@ This package uses the native iOS alternate icon API and Android launcher
 `activity-alias` components. Icons must be declared at build time with the
 config plugin, then selected at runtime from JavaScript.
 
+This package contains native code and does not work in Expo Go. Use a
+development, preview, or production build.
+
 ## Install
 
 ```sh
 npx expo install expo-awesome-app-icon
 ```
 
-This package contains native code and does not work in Expo Go. Use a
-development, preview, or production build.
-
 ## Configure
 
 Add the config plugin to your Expo config and rebuild the native app.
 
-Accepted icon config fields:
+Config shape example:
 
 ```js
 [
@@ -43,6 +43,8 @@ Accepted icon config fields:
   },
 ]
 ```
+
+`app.json` example:
 
 ```json
 {
@@ -111,7 +113,8 @@ await setAppIcon(null); // reset to primary icon
 ## Platform notes
 
 - iOS calls `UIApplication.setAlternateIconName`. The system shows Apple's
-  confirmation alert after a successful icon change.
+  confirmation alert after a successful icon change; suppressing it requires
+  private APIs, which this package avoids for App Store compatibility.
 - Android switches between generated launcher aliases. The launcher may take a
   moment to refresh the visible icon, depending on device and launcher.
 - Adding, removing, or changing icon assets requires a native rebuild. EAS
