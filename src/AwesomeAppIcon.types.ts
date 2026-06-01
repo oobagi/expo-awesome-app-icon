@@ -14,17 +14,26 @@ export type AndroidIconConfig = {
 };
 
 export type IosIconConfig = {
-  image?: string;
+  /**
+   * Light/default iOS alternate app icon image.
+   */
+  light: string;
+  /**
+   * Dark appearance iOS alternate app icon image.
+   */
+  dark?: string;
+  /**
+   * Tinted appearance iOS alternate app icon image.
+   */
+  tinted?: string;
 };
 
 export type DynamicAppIconConfig = {
   icons: Record<
     string,
-    | string
-    | {
-        image?: string;
-        ios?: IosIconConfig | string;
-        android?: AndroidIconConfig | string;
-      }
+    {
+      ios: IosIconConfig;
+      android: AndroidIconConfig;
+    }
   >;
 };

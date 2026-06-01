@@ -31,7 +31,7 @@ const dpiValues = {
 };
 
 const withAwesomeAppIcon = (config, props = {}) => {
-  const icons = normalizeIcons(props);
+  const icons = isObjectConfig(props.icons) ? props.icons : {};
   const records = Object.entries(icons).map(([name, icon]) => createIconRecord(name, icon));
 
   if (records.length === 0) {
@@ -119,32 +119,31 @@ const withAwesomeAppIcon = (config, props = {}) => {
   return config;
 };
 
-function normalizeIcons(props) {
-  if (props && props.icons && typeof props.icons === 'object') {
-    return props.icons;
-  }
-  if (props && typeof props === 'object') {
-    return props;
-  }
-  return {};
-}
-
 function createIconRecord(name, input) {
   if (!name || typeof name !== 'string') {
     throw new Error('Each alternate app icon must have a non-empty string name.');
   }
+  if (!isObjectConfig(input)) {
+    throw new Error(`Icon "${name}" must be an object with ios and android config.`);
+  }
+  if (!isObjectConfig(input.ios)) {
+    throw new Error(`Icon "${name}" must define ios config.`);
+  }
+  if (!isObjectConfig(input.android)) {
+    throw new Error(`Icon "${name}" must define android config.`);
+  }
 
-  const icon = typeof input === 'string' ? { image: input } : input || {};
-  const ios = normalizePlatformIcon(icon.ios, icon.image);
-  const android = normalizePlatformIcon(icon.android, icon.image);
-  const resourceName = `awesome_app_icon_${toResourceName(name)}`;
-  const iosName = `${MODULE_PREFIX}${toPascalCase(name)}`;
+  const ios = input.ios;
+  const android = input.android;
+  const normalizedName = toResourceName(name);
+  const resourceName = `awesome_app_icon_${normalizedName}`;
+  const iosName = `${MODULE_PREFIX}${toPascalCase(normalizedName)}`;
 
-  if (!ios.image) {
-    throw new Error(`Icon "${name}" must define an image or ios image.`);
+  if (!ios.light) {
+    throw new Error(`Icon "${name}" must define ios.light.`);
   }
   if (!android.image && !android.legacyImage && !android.foregroundImage) {
-    throw new Error(`Icon "${name}" must define an image or android image.`);
+    throw new Error(`Icon "${name}" must define android.image, android.legacyImage, or android.foregroundImage.`);
   }
 
   return {
@@ -156,11 +155,8 @@ function createIconRecord(name, input) {
   };
 }
 
-function normalizePlatformIcon(value, fallbackImage) {
-  if (typeof value === 'string') {
-    return { image: value };
-  }
-  return { image: fallbackImage, ...(value || {}) };
+function isObjectConfig(value) {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
 
 function parseBuildSettingList(value) {
@@ -185,36 +181,66 @@ async function writeIosIconSetsAsync(projectRoot, records) {
     await fs.promises.rm(appIconSetPath, { recursive: true, force: true });
     await fs.promises.mkdir(appIconSetPath, { recursive: true });
 
-    const image = await writeIosUniversalIconAsync(projectRoot, appIconSetPath, record);
+    const images = await writeIosUniversalIconsAsync(projectRoot, appIconSetPath, record);
 
     await fs.promises.writeFile(
       path.join(appIconSetPath, 'Contents.json'),
-      JSON.stringify({ images: [image], info: { author: 'xcode', version: 1 } }, null, 2)
+      JSON.stringify({ images, info: { author: 'xcode', version: 1 } }, null, 2)
     );
   }
 }
 
-async function writeIosUniversalIconAsync(projectRoot, appIconSetPath, record) {
-  const filename = `${record.iosName}-1024.png`;
-  const { source } = await generateImageAsync(
-    { projectRoot, cacheType: `awesome-app-icon-ios-${record.iosName}` },
+async function writeIosUniversalIconsAsync(projectRoot, appIconSetPath, record) {
+  const variants = [
     {
-      src: record.ios.image,
-      name: filename,
+      src: record.ios.light,
+      filename: `${record.iosName}-1024.png`,
+      cacheType: `awesome-app-icon-ios-${record.iosName}`,
+    },
+    record.ios.dark && {
+      src: record.ios.dark,
+      filename: `${record.iosName}-dark-1024.png`,
+      cacheType: `awesome-app-icon-ios-${record.iosName}-dark`,
+      appearance: 'dark',
+    },
+    record.ios.tinted && {
+      src: record.ios.tinted,
+      filename: `${record.iosName}-tinted-1024.png`,
+      cacheType: `awesome-app-icon-ios-${record.iosName}-tinted`,
+      appearance: 'tinted',
+    },
+  ].filter(Boolean);
+
+  return Promise.all(
+    variants.map((variant) => writeIosUniversalIconAsync(projectRoot, appIconSetPath, variant))
+  );
+}
+
+async function writeIosUniversalIconAsync(projectRoot, appIconSetPath, options) {
+  const preserveTransparency = options.appearance === 'dark';
+  const { source } = await generateImageAsync(
+    { projectRoot, cacheType: options.cacheType },
+    {
+      src: options.src,
+      name: options.filename,
       width: 1024,
       height: 1024,
       resizeMode: 'cover',
-      removeTransparency: true,
-      backgroundColor: '#ffffff',
+      removeTransparency: !preserveTransparency,
+      backgroundColor: preserveTransparency ? 'transparent' : '#ffffff',
     }
   );
-  await fs.promises.writeFile(path.join(appIconSetPath, filename), source);
-  return {
-    filename,
+  await fs.promises.writeFile(path.join(appIconSetPath, options.filename), source);
+  const image = {
+    filename: options.filename,
     idiom: 'universal',
     platform: 'ios',
     size: '1024x1024',
   };
+  if (options.appearance) {
+    image.appearances = [{ appearance: 'luminosity', value: options.appearance }];
+  }
+  return image;
 }
 
 function setAndroidLauncherAliases(config, records) {
@@ -428,7 +454,7 @@ function toResourceName(value) {
 }
 
 function toPascalCase(value) {
-  const words = toResourceName(value).split('_');
+  const words = value.split('_');
   return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join('');
 }
 
