@@ -9,7 +9,6 @@
     "android/src",
     "app.plugin.js",
     "build",
-    "CHANGELOG.md",
     "expo-module.config.json",
     "ios",
     "LICENSE",
