@@ -1,0 +1,4 @@
+interface:
+  display_name: "Release"
+  short_description: "Release expo-awesome-app-icon"
+  default_prompt: "Use $release to ship an expo-awesome-app-icon package release."

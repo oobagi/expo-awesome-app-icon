@@ -22,6 +22,9 @@
     "test": "expo-module test --passWithNoTests",
     "prepare": "expo-module prepare",
     "prepublishOnly": "expo-module prepublishOnly",
+    "release:patch": "npm version patch -m \"chore: release %s\"",
+    "release:minor": "npm version minor -m \"chore: release %s\"",
+    "release:major": "npm version major -m \"chore: release %s\"",
     "expo-module": "expo-module",
     "open:ios": "xed example/ios",
     "open:android": "open -a \"Android Studio\" example/android"
