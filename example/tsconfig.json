@@ -3,8 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "my-module": ["../src/index"],
-      "my-module/*": ["../src/*"]
+      "expo-awesome-app-icon": ["../src/index"],
+      "expo-awesome-app-icon/*": ["../src/*"]
     }
   }
 }

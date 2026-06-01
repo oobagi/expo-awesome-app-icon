@@ -19,7 +19,7 @@ config.resolver.nodeModulesPaths = [
 ];
 
 config.resolver.extraNodeModules = {
-  'my-module': '..',
+  'expo-awesome-app-icon': '..',
 };
 
 config.watchFolders = [path.resolve(__dirname, '..')];
