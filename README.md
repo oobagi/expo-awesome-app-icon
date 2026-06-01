@@ -91,6 +91,8 @@ npx expo prebuild --clean
 
 The keys under `icons` are the runtime icon names passed to `setAppIcon`. On iOS, `ios: { light, dark, tinted }` generates appearance variants inside the same alternate app icon set. Calling `setAppIcon('sunset')` selects the alternate icon, then iOS automatically displays the light/default, dark, or tinted artwork based on the user's Home Screen icon appearance.
 
+Each configured icon must define `ios`, `android`, or both. You can configure an icon for only one platform by omitting the other platform's config. Platform-specific icons are only bundled and reported on that platform: iOS-only icons are included in iOS Info.plist and hidden from Android metadata, while Android-only icons are included in Android launcher metadata and hidden from iOS.
+
 ## Icon images
 
 Use PNG source images and keep the artwork centered. The plugin resizes and writes the native icon files during prebuild, so the source files do not need platform-specific density suffixes.
@@ -99,7 +101,7 @@ For platform design guidance, see Apple's [App icons](https://developer.apple.co
 
 ### iOS
 
-- `ios.light` is required. It is resized to a single 1024 x 1024 universal app icon image. Transparency is removed and transparent pixels are composited onto white.
+- If `ios` is defined for an icon, `ios.light` is required. It is resized to a single 1024 x 1024 universal app icon image. Transparency is removed and transparent pixels are composited onto white.
 - `ios.dark` is optional. It is also resized to 1024 x 1024, but transparency is preserved so the system-provided dark icon background can show through.
 - `ios.tinted` is optional. It is resized to 1024 x 1024 and should be grayscale artwork. Transparency is removed and transparent pixels are composited onto white.
 
@@ -108,6 +110,7 @@ For platform design guidance, see Apple's [App icons](https://developer.apple.co
 
 ### Android
 
+- If `android` is defined for an icon, it must include `android.image` or `android.foregroundImage`.
 - `android.image` is the full-square fallback launcher icon. The plugin writes legacy launcher PNGs at mdpi 48 x 48, hdpi 72 x 72, xhdpi 96 x 96, xxhdpi 144 x 144, and xxxhdpi 192 x 192.
 - `android.foregroundImage` is the adaptive icon foreground layer. The plugin writes it at mdpi 108 x 108, hdpi 162 x 162, xhdpi 216 x 216, xxhdpi 324 x 324, and xxxhdpi 432 x 432. Use transparency and leave padding around the main shape so Android launchers can mask it safely.
 - `android.backgroundImage` is the adaptive icon background layer. It is written at the same adaptive sizes as the foreground and should usually be opaque and full bleed.

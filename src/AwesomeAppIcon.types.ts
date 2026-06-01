@@ -31,8 +31,8 @@ export type DynamicAppIconConfig = {
   icons: Record<
     string,
     {
-      ios: IosIconConfig;
-      android: AndroidIconConfig;
+      ios?: IosIconConfig;
+      android?: AndroidIconConfig;
     }
   >;
 };
