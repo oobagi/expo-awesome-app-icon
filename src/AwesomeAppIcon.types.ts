@@ -6,7 +6,6 @@ export type AndroidIconConfig = {
    * and as the fallback when adaptive icon layers are not provided.
    */
   image?: string;
-  legacyImage?: string;
   foregroundImage?: string;
   backgroundImage?: string;
   backgroundColor?: string;
