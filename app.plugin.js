@@ -142,8 +142,8 @@ function createIconRecord(name, input) {
   if (!ios.light) {
     throw new Error(`Icon "${name}" must define ios.light.`);
   }
-  if (!android.image && !android.legacyImage && !android.foregroundImage) {
-    throw new Error(`Icon "${name}" must define android.image, android.legacyImage, or android.foregroundImage.`);
+  if (!android.image && !android.foregroundImage) {
+    throw new Error(`Icon "${name}" must define android.image or android.foregroundImage.`);
   }
 
   return {
@@ -347,7 +347,7 @@ async function writeAndroidIconResourcesAsync(projectRoot, records) {
 }
 
 async function writeAndroidLegacyIconAsync(projectRoot, record) {
-  const src = record.android.legacyImage || record.android.image || record.android.foregroundImage;
+  const src = record.android.image || record.android.foregroundImage;
   await writeAndroidDensityImagesAsync(projectRoot, {
     src,
     outputName: `${record.resourceName}.png`,
