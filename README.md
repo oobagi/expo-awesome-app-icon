@@ -15,34 +15,29 @@ development, preview, or production build.
 npx expo install expo-awesome-app-icon
 ```
 
+## Use
+
+```ts
+import {
+  getAppIcon,
+  getAvailableIcons,
+  setAppIcon,
+  supportsAlternateIcons,
+} from 'expo-awesome-app-icon';
+
+if (supportsAlternateIcons()) {
+  await setAppIcon('sunset');
+}
+
+const currentIcon = getAppIcon();
+const icons = getAvailableIcons();
+
+await setAppIcon(null); // reset to primary icon
+```
+
 ## Configure
 
 Add the config plugin to your Expo config and rebuild the native app.
-
-Config shape example:
-
-```js
-[
-  'expo-awesome-app-icon',
-  {
-    icons: {
-      iconName: './assets/icons/icon.png', // shorthand: use the same image on iOS and Android
-      detailedIcon: {
-        image: './assets/icons/shared.png', // fallback image for both platforms
-        ios: './assets/icons/ios.png', // iOS alternate app icon image
-        android: {
-          image: './assets/icons/android.png', // Android fallback image
-          legacyImage: './assets/icons/android-legacy.png', // legacy launcher icon
-          foregroundImage: './assets/icons/android-foreground.png', // adaptive icon foreground
-          backgroundImage: './assets/icons/android-background.png', // adaptive icon background image
-          backgroundColor: '#f97316', // adaptive icon background color
-          monochromeImage: './assets/icons/android-monochrome.png', // Android themed icon layer
-        },
-      },
-    },
-  },
-]
-```
 
 `app.json` example:
 
@@ -55,13 +50,27 @@ Config shape example:
         {
           "icons": {
             "ocean": {
-              "image": "./assets/icons/ocean.png"
+              "ios": {
+                "light": "./assets/icons/ocean-ios-light.png"
+              },
+              "android": {
+                "image": "./assets/icons/ocean-android.png"
+              }
             },
             "forest": {
-              "image": "./assets/icons/forest.png"
+              "ios": {
+                "light": "./assets/icons/forest-ios-light.png"
+              },
+              "android": {
+                "image": "./assets/icons/forest-android.png"
+              }
             },
             "sunset": {
-              "ios": "./assets/icons/sunset-ios.png",
+              "ios": {
+                "light": "./assets/icons/sunset-ios-light.png",
+                "dark": "./assets/icons/sunset-ios-dark.png",
+                "tinted": "./assets/icons/sunset-ios-tinted.png"
+              },
               "android": {
                 "legacyImage": "./assets/icons/sunset-legacy.png",
                 "foregroundImage": "./assets/icons/sunset-foreground.png",
@@ -86,29 +95,14 @@ npx expo prebuild --clean
 The keys under `icons` are the runtime icon names passed to `setAppIcon`.
 Names like `ocean`, `forest`, and `sunset` are supported as normal alternate
 icon names.
-On iOS, the plugin generates one alternate app icon image per configured key;
-it does not currently generate Apple's light, dark, or tinted appearance
-variants inside a single app icon set.
+On iOS, `ios: { light, dark, tinted }` generates appearance variants inside the
+same alternate app icon set. Calling `setAppIcon('sunset')` selects the logical
+alternate icon, then iOS automatically displays the light/default, dark, or
+tinted artwork based on the user's Home Screen icon appearance.
 
-## Use
-
-```ts
-import {
-  getAppIcon,
-  getAvailableIcons,
-  setAppIcon,
-  supportsAlternateIcons,
-} from 'expo-awesome-app-icon';
-
-if (supportsAlternateIcons()) {
-  await setAppIcon('sunset');
-}
-
-const currentIcon = getAppIcon();
-const icons = getAvailableIcons();
-
-await setAppIcon(null); // reset to primary icon
-```
+For best iOS results, provide dark icon artwork with a transparent background so
+the system background can show through, and provide tinted icon artwork as a
+grayscale image.
 
 ## Platform notes
 
