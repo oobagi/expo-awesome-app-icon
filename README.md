@@ -4,7 +4,8 @@ Dynamically switch between bundled app icons in Expo apps.
 
 This package uses the native iOS alternate icon API and Android launcher `activity-alias` components. Icons must be declared at build time with the config plugin, then selected at runtime from JavaScript.
 
-This package contains native code and does not work in Expo Go. Use a development, preview, or production build.
+> [!WARNING]
+> This package contains native code and does not work in Expo Go. Use a development, preview, or production build.
 
 ## Install
 
@@ -102,7 +103,8 @@ For platform design guidance, see Apple's [App icons](https://developer.apple.co
 - `ios.dark` is optional. It is also resized to 1024 x 1024, but transparency is preserved so the system-provided dark icon background can show through.
 - `ios.tinted` is optional. It is resized to 1024 x 1024 and should be grayscale artwork. Transparency is removed and transparent pixels are composited onto white.
 
-For the cleanest output, work with at least 1024 x 1024 or larger. Smaller images work, but they have to be scaled up.
+> [!TIP]
+> For the cleanest output, work with at least 1024 x 1024 or larger. Smaller images work, but they have to be scaled up.
 
 ### Android
 
@@ -112,7 +114,7 @@ For the cleanest output, work with at least 1024 x 1024 or larger. Smaller image
 - `android.backgroundColor` is used instead of `backgroundImage` when no background image is provided.
 - `android.monochromeImage` is optional themed-icon artwork. Use a simple single-color shape with transparency around it.
 
-If only `android.image` is provided, the package generates the legacy launcher icon from it. If adaptive fields are provided, the package also generates an adaptive icon XML resource for Android 8.0 and newer.
+> If only `android.image` is provided, the package generates the legacy launcher icon from it. If adaptive fields are provided, the package also generates an adaptive icon XML resource for Android 8.0 and newer.
 
 ## Platform notes
 
