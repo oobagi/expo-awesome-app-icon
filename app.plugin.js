@@ -32,7 +32,8 @@ const dpiValues = {
 
 const withAwesomeAppIcon = (config, props = {}) => {
   const icons = isObjectConfig(props.icons) ? props.icons : {};
-  const records = Object.entries(icons).map(([name, icon]) => createIconRecord(name, icon));
+  const records = createIconRecords(icons);
+  const { iosRecords, androidRecords } = splitIconRecordsByPlatform(records);
 
   if (records.length === 0) {
     WarningAggregator.addWarningAndroid(
@@ -46,104 +47,121 @@ const withAwesomeAppIcon = (config, props = {}) => {
     return config;
   }
 
-  config = withInfoPlist(config, (config) => {
-    config.modResults[IOS_ICON_NAMES_KEY] = records.map((record) => record.name);
-    config.modResults[IOS_ICON_MAP_KEY] = Object.fromEntries(
-      records.map((record) => [record.name, record.iosName])
-    );
-    return config;
-  });
-
-  config = withXcodeProject(config, (config) => {
-    const projectName = config.modRequest.projectName;
-    if (!projectName) {
+  if (iosRecords.length > 0) {
+    config = withInfoPlist(config, (config) => {
+      config.modResults[IOS_ICON_NAMES_KEY] = iosRecords.map((record) => record.name);
+      config.modResults[IOS_ICON_MAP_KEY] = Object.fromEntries(
+        iosRecords.map((record) => [record.name, record.iosName])
+      );
       return config;
-    }
-    const { target } = IOSConfig.XcodeUtils.getApplicationNativeTarget({
-      project: config.modResults,
-      projectName,
     });
-    const configurations = IOSConfig.XcodeUtils.getBuildConfigurationsForListId(
-      config.modResults,
-      target.buildConfigurationList
-    );
-    for (const [, buildConfig] of configurations) {
-      const buildSettings = buildConfig.buildSettings || {};
-      const current = parseBuildSettingList(
-        buildSettings.ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES
-      ).filter((name) => !name.startsWith(MODULE_PREFIX));
-      const iconNames = [
-        ...current,
-        ...records.map((record) => record.iosName),
-      ].join(' ');
-      buildSettings.ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = `"${iconNames}"`;
-      buildConfig.buildSettings = buildSettings;
-    }
-    return config;
-  });
 
-  config = withDangerousMod(config, [
-    'ios',
-    async (config) => {
-      await writeIosIconSetsAsync(config.modRequest.projectRoot, records);
-      return config;
-    },
-  ]);
-
-  config = withAndroidColors(config, (config) => {
-    for (const record of records) {
-      const android = record.android;
-      if (hasAdaptiveConfig(android) && !android.backgroundImage) {
-        config.modResults = AndroidConfig.Colors.assignColorValue(config.modResults, {
-          name: `${record.resourceName}_background`,
-          value: android.backgroundColor || '#ffffff',
-        });
+    config = withXcodeProject(config, (config) => {
+      const projectName = config.modRequest.projectName;
+      if (!projectName) {
+        return config;
       }
-    }
-    return config;
-  });
-
-  config = withAndroidManifest(config, (config) => {
-    config.modResults = setAndroidLauncherAliases(config, records);
-    return config;
-  });
-
-  config = withDangerousMod(config, [
-    'android',
-    async (config) => {
-      await writeAndroidIconResourcesAsync(config.modRequest.projectRoot, records);
+      const { target } = IOSConfig.XcodeUtils.getApplicationNativeTarget({
+        project: config.modResults,
+        projectName,
+      });
+      const configurations = IOSConfig.XcodeUtils.getBuildConfigurationsForListId(
+        config.modResults,
+        target.buildConfigurationList
+      );
+      for (const [, buildConfig] of configurations) {
+        const buildSettings = buildConfig.buildSettings || {};
+        const current = parseBuildSettingList(
+          buildSettings.ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES
+        ).filter((name) => !name.startsWith(MODULE_PREFIX));
+        const iconNames = [
+          ...current,
+          ...iosRecords.map((record) => record.iosName),
+        ].join(' ');
+        buildSettings.ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = `"${iconNames}"`;
+        buildConfig.buildSettings = buildSettings;
+      }
       return config;
-    },
-  ]);
+    });
+
+    config = withDangerousMod(config, [
+      'ios',
+      async (config) => {
+        await writeIosIconSetsAsync(config.modRequest.projectRoot, iosRecords);
+        return config;
+      },
+    ]);
+  }
+
+  if (androidRecords.length > 0) {
+    config = withAndroidColors(config, (config) => {
+      for (const record of androidRecords) {
+        const android = record.android;
+        if (hasAdaptiveConfig(android) && !android.backgroundImage) {
+          config.modResults = AndroidConfig.Colors.assignColorValue(config.modResults, {
+            name: `${record.resourceName}_background`,
+            value: android.backgroundColor || '#ffffff',
+          });
+        }
+      }
+      return config;
+    });
+
+    config = withAndroidManifest(config, (config) => {
+      config.modResults = setAndroidLauncherAliases(config, androidRecords);
+      return config;
+    });
+
+    config = withDangerousMod(config, [
+      'android',
+      async (config) => {
+        await writeAndroidIconResourcesAsync(config.modRequest.projectRoot, androidRecords);
+        return config;
+      },
+    ]);
+  }
 
   return config;
 };
+
+function createIconRecords(icons) {
+  return Object.entries(icons).map(([name, icon]) => createIconRecord(name, icon));
+}
 
 function createIconRecord(name, input) {
   if (!name || typeof name !== 'string') {
     throw new Error('Each alternate app icon must have a non-empty string name.');
   }
   if (!isObjectConfig(input)) {
-    throw new Error(`Icon "${name}" must be an object with ios and android config.`);
+    throw new Error(`Icon "${name}" must be an object with ios or android config.`);
   }
-  if (!isObjectConfig(input.ios)) {
-    throw new Error(`Icon "${name}" must define ios config.`);
-  }
-  if (!isObjectConfig(input.android)) {
-    throw new Error(`Icon "${name}" must define android config.`);
+  const hasIos = Object.prototype.hasOwnProperty.call(input, 'ios');
+  const hasAndroid = Object.prototype.hasOwnProperty.call(input, 'android');
+  if (!hasIos && !hasAndroid) {
+    throw new Error(`Icon "${name}" must define ios or android config.`);
   }
 
-  const ios = input.ios;
-  const android = input.android;
+  const ios = hasIos ? input.ios : undefined;
+  const android = hasAndroid ? input.android : undefined;
   const normalizedName = toResourceName(name);
   const resourceName = `awesome_app_icon_${normalizedName}`;
   const iosName = `${MODULE_PREFIX}${toPascalCase(normalizedName)}`;
 
-  if (!ios.light) {
-    throw new Error(`Icon "${name}" must define ios.light.`);
+  if (hasIos) {
+    if (!isObjectConfig(ios)) {
+      throw new Error(`Icon "${name}" must define ios config.`);
+    }
+    if (!ios.light) {
+      throw new Error(`Icon "${name}" must define ios.light.`);
+    }
   }
-  if (!android.image && !android.foregroundImage) {
-    throw new Error(`Icon "${name}" must define android.image or android.foregroundImage.`);
+  if (hasAndroid) {
+    if (!isObjectConfig(android)) {
+      throw new Error(`Icon "${name}" must define android config.`);
+    }
+    if (!android.image && !android.foregroundImage) {
+      throw new Error(`Icon "${name}" must define android.image or android.foregroundImage.`);
+    }
   }
 
   return {
@@ -152,6 +170,13 @@ function createIconRecord(name, input) {
     android,
     resourceName,
     iosName,
+  };
+}
+
+function splitIconRecordsByPlatform(records) {
+  return {
+    iosRecords: records.filter((record) => record.ios),
+    androidRecords: records.filter((record) => record.android),
   };
 }
 
@@ -437,7 +462,13 @@ function createAdaptiveIconXml(record, hasBackgroundImage, hasMonochromeImage) {
 }
 
 function hasAdaptiveConfig(android) {
-  return Boolean(android.foregroundImage || android.backgroundImage || android.backgroundColor || android.monochromeImage);
+  return Boolean(
+    android &&
+      (android.foregroundImage ||
+        android.backgroundImage ||
+        android.backgroundColor ||
+        android.monochromeImage)
+  );
 }
 
 function toResourceName(value) {
@@ -459,3 +490,8 @@ function toPascalCase(value) {
 }
 
 module.exports = withAwesomeAppIcon;
+module.exports._internal = {
+  createIconRecords,
+  createIconRecord,
+  splitIconRecordsByPlatform,
+};
